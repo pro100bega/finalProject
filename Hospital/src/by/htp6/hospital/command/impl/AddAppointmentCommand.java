@@ -2,7 +2,6 @@ package by.htp6.hospital.command.impl;
 
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,28 +10,28 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import by.htp6.hospital.bean.Report;
 import by.htp6.hospital.bean.User;
 import by.htp6.hospital.command.Command;
 import by.htp6.hospital.constant.ErrorMessage;
 import by.htp6.hospital.constant.ParameterName;
 import by.htp6.hospital.constant.Url;
-import by.htp6.hospital.service.GetSingleReportService;
-import by.htp6.hospital.service.GetUnreadReportsCountService;
+import by.htp6.hospital.service.AddAppointmentService;
 import by.htp6.hospital.service.exception.ServiceException;
 import by.htp6.hospital.service.factory.ServiceFactory;
 
 /**
- * Команда получения конкретного сообщения о неполадках
+ * Команда предназначенная для добавления нового назначения
  * 
- * Command designed to get single report message
+ * Command designed to add new appointment
  * 
  * @author Begench Shamuradov, 2017
  */
-public class GetSingleReportCommand implements Command {
+public class AddAppointmentCommand implements Command {
 
-	private static final Logger log = LogManager.getLogger(GetSingleReportCommand.class);
+	private static final Logger log = LogManager.getLogger(AddAppointmentCommand.class);
 	
+	private static final String GET_PATIENT_INFO_COMMAND = "controller?command=GET_PATIENT_INFO&status=undone&patientId=";
+
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
@@ -41,23 +40,24 @@ public class GetSingleReportCommand implements Command {
 			log.error(ErrorMessage.SESSION_EXPIRED);
 			response.sendRedirect(Url.INDEX);
 		} else {
-			User user = (User) session.getAttribute(ParameterName.AUTHORISED_USER);
-			String userType = user.getType();
 
-			int reportId = Integer.parseInt(request.getParameter(ParameterName.ID));
+			User user = (User) session.getAttribute(ParameterName.AUTHORISED_USER);
+			int doctorId = user.getId();
+			int patientId = Integer.parseInt(request.getParameter(ParameterName.PATIENT_ID));
+
+			String type = request.getParameter(ParameterName.TYPE);
+			String name = request.getParameter(ParameterName.NAME);
+			String termDate = request.getParameter(ParameterName.TERM_DATE);
+			String termTime = request.getParameter(ParameterName.TERM_TIME);
 
 			ServiceFactory serviceFactory = ServiceFactory.getInstance();
-			GetSingleReportService getSingleReport = serviceFactory.getGetSingleReport();
-			GetUnreadReportsCountService getUnreadReportsCount = serviceFactory.getGetUnreadReportsCount();
+			AddAppointmentService addAppointmentService = serviceFactory.getAddAppointment();
 
 			try {
-				Report report = getSingleReport.getReport(userType, reportId);
-				int unreadReportsCount = getUnreadReportsCount.getUnreadReportsCountService();
-				session.setAttribute(ParameterName.UNREAD_REPORTS_COUNT, unreadReportsCount);
-				request.setAttribute(ParameterName.REPORT, report);
+				addAppointmentService.addAppointment(patientId, doctorId, type, name, termDate, termTime);
 
-				RequestDispatcher dispatcher = request.getRequestDispatcher(Url.REPORT);
-				dispatcher.forward(request, response);
+				String url = GET_PATIENT_INFO_COMMAND + patientId;
+				response.sendRedirect(url);
 
 			} catch (ServiceException e) {
 

@@ -10,9 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import by.htp6.hospital.bean.Log;
 import by.htp6.hospital.bean.User;
 import by.htp6.hospital.command.Command;
+import by.htp6.hospital.constant.ErrorMessage;
 import by.htp6.hospital.constant.ParameterName;
 import by.htp6.hospital.constant.Url;
 import by.htp6.hospital.service.FindLogService;
@@ -28,32 +32,39 @@ import by.htp6.hospital.service.factory.ServiceFactory;
  */
 public class FindLogCommand implements Command {
 
-	private static final String GET_ADMIN_INFO_COMMAND = 
-			"controller?command=GET_ADMIN_INFO";
+	private static final Logger log = LogManager.getLogger(FindLogCommand.class);
 	
+	private static final String GET_ADMIN_INFO_COMMAND = "controller?command=GET_ADMIN_INFO";
+
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
-		String searchData = request.getParameter(ParameterName.SEARCH_DATA);
-		User user = (User) session.getAttribute(ParameterName.AUTHORISED_USER);
-		String userType = user.getType();
-		ServiceFactory serviceFactory = ServiceFactory.getInstance();
 
-		if ("".equals(searchData) || null == searchData) {
-			response.sendRedirect(GET_ADMIN_INFO_COMMAND);
+		if (session == null) {
+			log.error(ErrorMessage.SESSION_EXPIRED);
+			response.sendRedirect(Url.INDEX);
 		} else {
-			FindLogService findLog = serviceFactory.getFindLog();
+			String searchData = request.getParameter(ParameterName.SEARCH_DATA);
+			User user = (User) session.getAttribute(ParameterName.AUTHORISED_USER);
+			String userType = user.getType();
+			ServiceFactory serviceFactory = ServiceFactory.getInstance();
 
-			try {
-				List<Log> logList = findLog.findLog(searchData, userType);
-				request.setAttribute(ParameterName.SEARCH_DATA, searchData);
-				request.setAttribute(ParameterName.FOUND_LOG, logList);
+			if ("".equals(searchData) || null == searchData) {
+				response.sendRedirect(GET_ADMIN_INFO_COMMAND);
+			} else {
+				FindLogService findLog = serviceFactory.getFindLog();
 
-				RequestDispatcher dispatcher = request.getRequestDispatcher(Url.FOUND_LOG);
-				dispatcher.forward(request, response);
-			} catch (ServiceException e) {
-				
-				response.sendRedirect(Url.ERROR);
+				try {
+					List<Log> logList = findLog.findLog(searchData, userType);
+					request.setAttribute(ParameterName.SEARCH_DATA, searchData);
+					request.setAttribute(ParameterName.FOUND_LOG, logList);
+
+					RequestDispatcher dispatcher = request.getRequestDispatcher(Url.FOUND_LOG);
+					dispatcher.forward(request, response);
+				} catch (ServiceException e) {
+
+					response.sendRedirect(Url.ERROR);
+				}
 			}
 		}
 	}

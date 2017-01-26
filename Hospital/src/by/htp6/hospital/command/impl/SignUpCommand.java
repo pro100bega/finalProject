@@ -30,6 +30,10 @@ public class SignUpCommand implements Command{
 
 	private static final String TRUE_MESSAGE = "true";
 	
+	private static final String USER = "User ";
+	
+	private static final String SIGNED_UP = " was successfully signed up";
+	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
@@ -44,7 +48,7 @@ public class SignUpCommand implements Command{
 			logUpUserService.signUp(username, password);
 			request.setAttribute(ParameterName.SUCCESS_MESSAGE, SuccessMessage.SIGN_UP);
 			
-			log.info("User " + username + " was successfully signed up.");
+			log.info(USER + username + SIGNED_UP);
 			RequestDispatcher dispatcher = request.getRequestDispatcher(Url.SUCCESS);
 			dispatcher.forward(request, response);
 			

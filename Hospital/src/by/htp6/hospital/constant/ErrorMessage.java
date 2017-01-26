@@ -43,4 +43,6 @@ public class ErrorMessage {
 	public static final String CONNECTION_IS_NULL = "Connection is null";
 	public static final String DRIVER_LOAD_ERROR = "Driver load error";
 	public static final String WRONG_TECHNOLOGY = "Wrong technology name";
+	public static final String UNABLE_TO_SIGN_OUT = "Unable to sign out! User hasn`t signed in";
+	public static final String SESSION_EXPIRED = "Session has expired or was not created";
 }

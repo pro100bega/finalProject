@@ -24,32 +24,29 @@ import by.htp6.hospital.service.factory.ServiceFactory;
  * 
  * @author Begench Shamuradov, 2017
  */
-public class SignInCommand implements Command{
+public class SignInCommand implements Command {
 
-	private static final String GET_ADMIN_PANEL_COMMAND =
-			"controller?command=GET_ADMIN_INFO";
-	private static final String GET_PATIENT_LIST_COMMAND =
-			"controller?command=GET_PATIENT_LIST" +
-						"&currentPage=1&patientsPerPage=13";
+	private static final String GET_ADMIN_PANEL_COMMAND = "controller?command=GET_ADMIN_INFO";
+	private static final String GET_PATIENT_LIST_COMMAND = "controller?command=GET_PATIENT_LIST"
+			+ "&currentPage=1&patientsPerPage=13";
 	private static final String TRUE_MESSAGE = "true";
-	
+
 	@Override
-	public void execute(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
+	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
 		HttpSession session = request.getSession(true);
-		
+
 		String username = request.getParameter(ParameterName.USERNAME);
 		String password = request.getParameter(ParameterName.PASSWORD);
-		
+
 		ServiceFactory serviceFactory = ServiceFactory.getInstance();
 		SignInService loginUserService = serviceFactory.getSignInUser();
-		
+
 		User user = null;
 		try {
 			user = loginUserService.signIn(username, password);
 			String url = null;
-			switch(user.getType()){
+			switch (user.getType()) {
 			case UserType.DOCTOR:
 				url = GET_PATIENT_LIST_COMMAND;
 				break;
@@ -59,26 +56,25 @@ public class SignInCommand implements Command{
 			case UserType.NURSE:
 				url = GET_PATIENT_LIST_COMMAND;
 				break;
-			case UserType.GUEST :
+			case UserType.GUEST:
 				url = Url.INDEX;
 				break;
-			default :
+			default:
 				url = Url.INDEX;
 				break;
 			}
-			
+
 			session.setAttribute(ParameterName.AUTHORISED_USER, user);
-			
+
 			response.sendRedirect(url);
-			
+
 		} catch (ServiceException e) {
-			
+
 			request.setAttribute(ParameterName.ERROR, TRUE_MESSAGE);
 			RequestDispatcher dispatcher = request.getRequestDispatcher(Url.INDEX);
 			dispatcher.forward(request, response);
 		}
-		
-		
+
 	}
-	
+
 }

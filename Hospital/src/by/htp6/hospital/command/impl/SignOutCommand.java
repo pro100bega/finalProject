@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import by.htp6.hospital.bean.User;
 import by.htp6.hospital.command.Command;
+import by.htp6.hospital.constant.ErrorMessage;
 import by.htp6.hospital.constant.ParameterName;
 import by.htp6.hospital.constant.Url;
 
@@ -26,17 +27,21 @@ public class SignOutCommand implements Command {
 
 	private static final Logger log = LogManager.getLogger(SignOutCommand.class);
 	
+	private static final String USER = "User ";
+	
+	private static final String SIGNED_OUT = " has signed out";
+	
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
-
+		
 		if (session == null) {
-			log.error("Unable to sign out! User hasn`t signed in.");
-			response.sendRedirect(Url.ERROR);
+			log.error(ErrorMessage.UNABLE_TO_SIGN_OUT);
+			response.sendRedirect(Url.INDEX);
 			
 		} else {
 			User user = (User)session.getAttribute(ParameterName.AUTHORISED_USER);
-			log.info("User " + user.getUsername() + " has signed out.");
+			log.info(USER + user.getUsername() + SIGNED_OUT);
 			session.invalidate();
 			response.sendRedirect(Url.INDEX);
 		}
