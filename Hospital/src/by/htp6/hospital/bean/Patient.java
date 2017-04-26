@@ -154,7 +154,7 @@ public class Patient implements Serializable {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((note == null) ? 0 : note.hashCode());
 		result = prime * result + ((receiptDate == null) ? 0 : receiptDate.hashCode());
-		result = prime * result + ((sex == null) ? 0 : sex.hashCode()); 
+		result = prime * result + ((sex == null) ? 0 : sex.hashCode());
 		result = prime * result + ((surname == null) ? 0 : surname.hashCode());
 		return result;
 	}
@@ -197,7 +197,7 @@ public class Patient implements Serializable {
 				return false;
 		} else if (!receiptDate.equals(other.receiptDate))
 			return false;
-		if (sex == null) { 
+		if (sex == null) {
 			if (other.sex != null)
 				return false;
 		} else if (!sex.equals(other.sex))
@@ -209,5 +209,6 @@ public class Patient implements Serializable {
 			return false;
 		return true;
 	}
+	
 	
 }

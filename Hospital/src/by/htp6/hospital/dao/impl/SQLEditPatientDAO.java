@@ -21,6 +21,7 @@ import by.htp6.hospital.dao.pool.ConnectionPool;
  * 
  * @author Begench Shamuradov, 2017
  */
+
 public class SQLEditPatientDAO implements EditPatientDAO {
 	private static final Logger log = LogManager.getLogger(SQLEditPatientDAO.class);
 	
